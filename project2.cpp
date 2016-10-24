@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <iostream>
 #include <cstdlib>
+#include <algorithm>
 using namespace std;
 
 //algorithm 1
@@ -13,7 +14,20 @@ using namespace std;
 
 //algorithm 2
 //greedy
-
+int changegreedy(int VSize, int in[], int out[], int A){
+//to really know the most valuable coins we have to sort it
+	sort(in, in);
+//worst case O(n)
+	int numCoins = 0;
+	for(int i = VSize-1 ; A > 0; --i){
+		while (A >= in[i]){
+			A = A - in[i];
+			out[i] += 1;
+			numCoins += 1;
+		}
+	}
+	return numCoins;
+}
 
 
 //algorithm 3
@@ -100,5 +114,50 @@ int main()
 	for (int i = 0; i < VSize; i ++)
 		cout << outputArray[i] <<endl;
 
-	return 0;
+	// Greedy Algorithm tests
+        cout << endl << "**************************************" << endl;
+	cout << "gegreedy() test " << endl;
+        cout << "**************************************" << endl;
+        cout << "testing with C = [1,2,4,8] and m = 15" << endl;
+        int coins1[4] = {1,2,4,8};
+        int change1 = 15;
+        int VSize1 = 4;
+        int outputArray1[4] = {0,0,0,0};
+        int m1 = changegreedy(VSize1, coins1, outputArray1, change1);
+        cout << "m = " << m1 << endl;
+        cout << "[";
+        for (int i = 0; i < VSize1; ++i){
+                cout << outputArray[i];
+        }
+        cout << "]" << endl;;
+
+        cout << "**************************************" << endl;
+        cout << "testing with C = [1,3,7,12] and m = 29" << endl;
+        int coins2[4] = {1,3,7,12};
+        int change2 = 29;
+        int VSize2 = 4;
+        int outputArray2[4] = {0,0,0,0};
+        int m2 = changegreedy(VSize2, coins2, outputArray2, change2);
+        cout << "m = " << m2 << endl;
+        cout << "[";
+        for (int i = 0; i < VSize2; ++i){
+                cout << outputArray2[i];
+        }
+        cout << "]" << endl;;
+
+        cout << "**************************************" << endl;
+        cout << "testing with C = [1,3,7,12] and m = 29" << endl;
+        int coins3[4] = {1,3,7,12};
+        int change3 = 31;
+        int VSize3 = 4;
+        int outputArray3[4] = {0,0,0,0};
+        int m3 = changegreedy(VSize3, coins3, outputArray3, change3);
+        cout << "m = " << m3 << endl;
+        cout << "[";
+        for (int i = 0; i < VSize3; ++i){
+                cout << outputArray3[i];
+        }
+        cout << "]" << endl;;
+        // end Greedy Algorithm
+        return 0;
 }  
