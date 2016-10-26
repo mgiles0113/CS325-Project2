@@ -8,6 +8,7 @@
 #include <climits>
 #include <string.h>
 #include <fstream>
+#include <time.h>
 
 using namespace std;
 
@@ -128,6 +129,8 @@ void resetArray(int arrayLength, int array[]) {
 }
 
 int main(int argc, char *argv[]) {
+	time_t t;
+	srand((unsigned) time(&t));
 	FILE *inputFile;
 	char c,
 		 stringArray[512],
@@ -154,82 +157,107 @@ int main(int argc, char *argv[]) {
 	inputFile = fopen(argv[1], "r");
 	outputFile.open(outputFilename);
 
-	while ((c = getc(inputFile)) != ']') {
-		if (c == ',') {
-			V[VSize] = atoi(stringArray);
+	while ((c = getc(inputFile)) != EOF) {
+		if (c == ']') {
+			for (i = 0; i < strlen(stringArray); i++) {
+				if (stringArray[i] == ',') {
+					intValue = atoi(stringValue);
+					V[VSize] = intValue;
+					VSize = VSize + 1;
+					memset(stringValue, 0, strlen(stringValue));
+				} else {
+					stringValue[strlen(stringValue)] = stringArray[i];
+				}
+			}
+			intValue = atoi(stringValue);
+			V[VSize] = intValue;
 			VSize = VSize + 1;
+			memset(stringValue, 0, strlen(stringValue));
+			c = getc(inputFile);
+			while ((c = getc(inputFile)) != '\n') {
+				stringValue[strlen(stringValue)] = c;
+			}
+			A = atoi(stringValue);
+			outputFile << "  Testing: V = [";
+			for (i = 0; i < VSize; i++) {
+				outputFile << V[i];
+				if (i < VSize - 1) {
+					outputFile << ",";
+				}
+			}
+			outputFile << "] and A = " << A << "\n";
+	
+			// Clearing output array for next algorithm
+			resetArray(VSize, outputArray);
+
+			// Brute Force Algorithm
+    		outputFile << "**************************************" << endl;
+    		outputFile << "       Brute Force  Algorithm" << endl;
+			outputFile << "**************************************" << endl;
+			clock_t begin = clock();
+			m = changeslow(VSize, V, outputArray, A);
+			clock_t end = clock();
+			double runningTime = ((double)(end - begin)/ CLOCKS_PER_SEC);
+			outputFile << "Running Time: " << runningTime << endl;
+			outputFile << "C: [";
+    		for (int i = 0; i < VSize; ++i){
+        		outputFile << outputArray[i];
+    		}
+    		outputFile << "]" << endl;
+    		outputFile << "m = " << m << endl;
+
+			// Clearing output array for next algorithm
+			resetArray(VSize, outputArray);
+			// Clearing m for next algorithm
+			m = -1;
+
+			// Greedy Algorithm
+		    outputFile << "**************************************" << endl;
+    		outputFile << "           Greedy Algorithm" << endl;
+			outputFile << "**************************************" << endl;
+			begin = clock();
+			m = changegreedy(VSize, V, outputArray, A);
+			end = clock();
+			runningTime = ((double)(end - begin)/ CLOCKS_PER_SEC);
+			outputFile << "Running Time: " << runningTime << endl;
+    		outputFile << "C: [";
+    		for (int i = 0; i < VSize; ++i){
+        		outputFile << outputArray[i];
+    		}
+    		outputFile << "]" << endl;
+    		outputFile << "m = " << m << endl;
+	
+			// Clearing output array for next algorithm
+			resetArray(VSize, outputArray);
+			// Clearing m for next algorithm
+			m = -1;
+
+			// Dynamic Programming
+		    outputFile << "**************************************" << endl;
+		    outputFile << "    Dynamic Programming Algorithm" << endl;
+			outputFile << "**************************************" << endl;
+			begin = clock();
+			m = changedp(VSize, V, outputArray, A);
+			end = clock();
+			runningTime = ((double)(end - begin)/ CLOCKS_PER_SEC);
+			outputFile << "Running Time: " << runningTime << endl;
+			outputFile << "C: [";
+			for (int i = 0; i < VSize; i ++) {
+				outputFile << outputArray[i];
+			}
+			outputFile << "]" << endl;
+			outputFile << "m = " << m << endl;
+			
+			VSize = 0;
+			memset(stringValue, 0, strlen(stringValue));
 			memset(stringArray, 0, strlen(stringArray));
-		} else if (c != '[') {
+			memset(V, 0, 256);
+		} else if (c != '[' && c != ' ' && c != '\n') {
 			stringArray[strlen(stringArray)] = c;
 		}
 	}
-	V[VSize] = atoi(stringArray);
-	VSize = VSize + 1;
-	memset(stringArray, 0, strlen(stringArray));
-
-	while ((c = getc(inputFile)) != EOF) {
-		stringArray[strlen(stringArray)] = c;
-	}
-	A = atoi(stringArray);
-
-    outputFile << "  Testing: V = [";
-	for (i = 0; i < VSize; i++) {
-		outputFile << V[i];
-		if (i < VSize - 1) {
-			outputFile << ",";
-		}
-	}
-	outputFile << "] and A = " << A << "\n";
-	
-	// Clearing output array for next algorithm
-	resetArray(VSize, outputArray);
-
-	// Brute Force Algorithm
-    outputFile << "**************************************" << endl;
-    outputFile << "       Brute Force  Algorithm" << endl;
-	outputFile << "**************************************" << endl;
-	m = changeslow(VSize, V, outputArray, A);
-    outputFile << "C: [";
-    for (int i = 0; i < VSize; ++i){
-        outputFile << outputArray[i];
-    }
-    outputFile << "]" << endl;
-    outputFile << "m = " << m << endl;
-
-	// Clearing output array for next algorithm
-	resetArray(VSize, outputArray);
-	// Clearing m for next algorithm
-	m = -1;
-
-	// Greedy Algorithm
-    outputFile << "**************************************" << endl;
-    outputFile << "           Greedy Algorithm" << endl;
-	outputFile << "**************************************" << endl;
-	m = changegreedy(VSize, V, outputArray, A);
-    outputFile << "C: [";
-    for (int i = 0; i < VSize; ++i){
-        outputFile << outputArray[i];
-    }
-    outputFile << "]" << endl;
-    outputFile << "m = " << m << endl;
-	
-	// Clearing output array for next algorithm
-	resetArray(VSize, outputArray);
-	// Clearing m for next algorithm
-	m = -1;
-
-	// Dynamic Programming
-    outputFile << "**************************************" << endl;
-    outputFile << "    Dynamic Programming Algorithm" << endl;
-	outputFile << "**************************************" << endl;
-	m = changedp(VSize, V, outputArray, A);
-	outputFile << "C: [";
-	for (int i = 0; i < VSize; i ++) {
-		outputFile << outputArray[i];
-	}
-	outputFile << "]" << endl;
-	outputFile << "m = " << m << endl;
 	fclose(inputFile);
 	outputFile.close();
-	return 0;
+
+    return 0;
 }
