@@ -26,7 +26,9 @@ int changeslow(int VSize, int in[], int out[], int A) {
 			
 			if (sub_result != INT_MAX && sub_result + 1 < result) {
 				result = sub_result + 1;
+				out[i] = result;
 			}
+			
 		}
 	}
 	
