@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <climits>
 #include <string.h>
+#include <fstream>
 
 using namespace std;
 
@@ -127,8 +128,7 @@ void resetArray(int arrayLength, int array[]) {
 }
 
 int main(int argc, char *argv[]) {
-	FILE *inputFile,
-		 *outputFile;
+	FILE *inputFile;
 	char c,
 		 stringArray[512],
 		 stringValue[512],
@@ -141,19 +141,19 @@ int main(int argc, char *argv[]) {
 		i = 0,
 		intValue = -1,
 		arrayComplete = 0;
-
+	ofstream outputFile;
 	for (i = 0; i < strlen(argv[1]); i++) {
 		if (argv[1][i] == '.') {
 			outputFilename[strlen(outputFilename)] = '\0';
 			break;
-		} else {
+		} else if (argv[1][i] != '?' && argv[1][i] != 'L') {
 			outputFilename[strlen(outputFilename)] = argv[1][i];
 		}
 	}
-
-	cout << outputFilename << endl;
+	strcat(outputFilename, "change.txt");
 	inputFile = fopen(argv[1], "r");
-	outputFile = fopen(strcat(outputFilename, "change.txt"), "w");
+	outputFile.open(outputFilename);
+
 	while ((c = getc(inputFile)) != ']') {
 		if (c == ',') {
 			V[VSize] = atoi(stringArray);
@@ -172,29 +172,29 @@ int main(int argc, char *argv[]) {
 	}
 	A = atoi(stringArray);
 
-    fprintf(outputFile, "  Testing: V = [\n");
+    outputFile << "  Testing: V = [";
 	for (i = 0; i < VSize; i++) {
-		cout << V[i];
+		outputFile << V[i];
 		if (i < VSize - 1) {
-			cout << ",";
+			outputFile << ",";
 		}
 	}
-	cout << "] and A = " << A << endl;
+	outputFile << "] and A = " << A << "\n";
 	
 	// Clearing output array for next algorithm
 	resetArray(VSize, outputArray);
 
 	// Brute Force Algorithm
-    cout << "**************************************" << endl;
-    cout << "       Brute Force  Algorithm" << endl;
-	cout << "**************************************" << endl;
+    outputFile << "**************************************" << endl;
+    outputFile << "       Brute Force  Algorithm" << endl;
+	outputFile << "**************************************" << endl;
 	m = changeslow(VSize, V, outputArray, A);
-    cout << "C: [";
+    outputFile << "C: [";
     for (int i = 0; i < VSize; ++i){
-        cout << outputArray[i];
+        outputFile << outputArray[i];
     }
-    cout << "]" << endl;
-    cout << "m = " << m << endl;
+    outputFile << "]" << endl;
+    outputFile << "m = " << m << endl;
 
 	// Clearing output array for next algorithm
 	resetArray(VSize, outputArray);
@@ -202,16 +202,16 @@ int main(int argc, char *argv[]) {
 	m = -1;
 
 	// Greedy Algorithm
-    cout << "**************************************" << endl;
-    cout << "           Greedy Algorithm" << endl;
-	cout << "**************************************" << endl;
+    outputFile << "**************************************" << endl;
+    outputFile << "           Greedy Algorithm" << endl;
+	outputFile << "**************************************" << endl;
 	m = changegreedy(VSize, V, outputArray, A);
-    cout << "C: [";
+    outputFile << "C: [";
     for (int i = 0; i < VSize; ++i){
-        cout << outputArray[i];
+        outputFile << outputArray[i];
     }
-    cout << "]" << endl;
-    cout << "m = " << m << endl;
+    outputFile << "]" << endl;
+    outputFile << "m = " << m << endl;
 	
 	// Clearing output array for next algorithm
 	resetArray(VSize, outputArray);
@@ -219,17 +219,17 @@ int main(int argc, char *argv[]) {
 	m = -1;
 
 	// Dynamic Programming
-    cout << "**************************************" << endl;
-    cout << "    Dynamic Programming Algorithm" << endl;
-	cout << "**************************************" << endl;
+    outputFile << "**************************************" << endl;
+    outputFile << "    Dynamic Programming Algorithm" << endl;
+	outputFile << "**************************************" << endl;
 	m = changedp(VSize, V, outputArray, A);
-	cout << "C: [";
+	outputFile << "C: [";
 	for (int i = 0; i < VSize; i ++) {
-		cout << outputArray[i];
+		outputFile << outputArray[i];
 	}
-	cout << "]" << endl;
-	cout << "m = " << m << endl;
+	outputFile << "]" << endl;
+	outputFile << "m = " << m << endl;
 	fclose(inputFile);
-	fclose(outputFile);
+	outputFile.close();
 	return 0;
 }
