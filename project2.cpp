@@ -5,13 +5,31 @@
 #include <iostream>
 #include <cstdlib>
 #include <algorithm>
+#include <climits>
+#include <string.h>
+
 using namespace std;
 
 //algorithm 1
 //brute force
+int changeslow(int VSize, int in[], int out[], int A) {
+	if (A == 0) {
+		return 0;
+	}
+	int result = INT_MAX;
 
-
-
+	for (int i = 0; i < VSize; i++) {
+		if (in[i] <= A) {
+			int sub_result = changeslow(VSize, in, out, A - in[i]);
+			
+			if (sub_result != INT_MAX && sub_result + 1 < result) {
+				result = sub_result + 1;
+			}
+		}
+	}
+	
+	return result;
+}
 //algorithm 2
 //greedy
 int changegreedy(int VSize, int in[], int out[], int A){
@@ -101,63 +119,117 @@ int changedp(int VSize, int V[], int outputArray[], int A)
 	return minimum;
 }
 
+void resetArray(int arrayLength, int array[]) {
+	int i = 0;
+	for (i = 0; i < arrayLength; i++) {
+		array[i] = 0;
+	}
+}
 
+int main(int argc, char *argv[]) {
+	FILE *inputFile,
+		 *outputFile;
+	char c,
+		 stringArray[512],
+		 stringValue[512],
+		 outputFilename[512];
+	int m = -1,
+		A = -1,
+		VSize = 0,
+		V[256],
+		outputArray[256],
+		i = 0,
+		intValue = -1,
+		arrayComplete = 0;
 
-int main() 
-{
-	int VSize = 4;
-	int V[4] = {1, 3, 7, 12};
-	int A = 31;
-	int outputArray[4] = {0, 0, 0, 0};
-	int m = changedp(VSize, V, outputArray, A);
-	cout << m << endl;
-	for (int i = 0; i < VSize; i ++)
-		cout << outputArray[i] <<endl;
+	for (i = 0; i < strlen(argv[1]); i++) {
+		if (argv[1][i] == '.') {
+			outputFilename[strlen(outputFilename)] = '\0';
+			break;
+		} else {
+			outputFilename[strlen(outputFilename)] = argv[1][i];
+		}
+	}
 
-	// Greedy Algorithm tests
-        cout << endl << "**************************************" << endl;
-	cout << "gegreedy() test " << endl;
-        cout << "**************************************" << endl;
-        cout << "testing with C = [1,2,4,8] and m = 15" << endl;
-        int coins1[4] = {1,2,4,8};
-        int change1 = 15;
-        int VSize1 = 4;
-        int outputArray1[4] = {0,0,0,0};
-        int m1 = changegreedy(VSize1, coins1, outputArray1, change1);
-        cout << "m = " << m1 << endl;
-        cout << "[";
-        for (int i = 0; i < VSize1; ++i){
-                cout << outputArray[i];
-        }
-        cout << "]" << endl;;
+	cout << outputFilename << endl;
+	inputFile = fopen(argv[1], "r");
+	outputFile = fopen(strcat(outputFilename, "change.txt"), "w");
+	while ((c = getc(inputFile)) != ']') {
+		if (c == ',') {
+			V[VSize] = atoi(stringArray);
+			VSize = VSize + 1;
+			memset(stringArray, 0, strlen(stringArray));
+		} else if (c != '[') {
+			stringArray[strlen(stringArray)] = c;
+		}
+	}
+	V[VSize] = atoi(stringArray);
+	VSize = VSize + 1;
+	memset(stringArray, 0, strlen(stringArray));
 
-        cout << "**************************************" << endl;
-        cout << "testing with C = [1,3,7,12] and m = 29" << endl;
-        int coins2[4] = {1,3,7,12};
-        int change2 = 29;
-        int VSize2 = 4;
-        int outputArray2[4] = {0,0,0,0};
-        int m2 = changegreedy(VSize2, coins2, outputArray2, change2);
-        cout << "m = " << m2 << endl;
-        cout << "[";
-        for (int i = 0; i < VSize2; ++i){
-                cout << outputArray2[i];
-        }
-        cout << "]" << endl;;
+	while ((c = getc(inputFile)) != EOF) {
+		stringArray[strlen(stringArray)] = c;
+	}
+	A = atoi(stringArray);
 
-        cout << "**************************************" << endl;
-        cout << "testing with C = [1,3,7,12] and m = 29" << endl;
-        int coins3[4] = {1,3,7,12};
-        int change3 = 31;
-        int VSize3 = 4;
-        int outputArray3[4] = {0,0,0,0};
-        int m3 = changegreedy(VSize3, coins3, outputArray3, change3);
-        cout << "m = " << m3 << endl;
-        cout << "[";
-        for (int i = 0; i < VSize3; ++i){
-                cout << outputArray3[i];
-        }
-        cout << "]" << endl;;
-        // end Greedy Algorithm
-        return 0;
-}  
+    fprintf(outputFile, "  Testing: V = [\n");
+	for (i = 0; i < VSize; i++) {
+		cout << V[i];
+		if (i < VSize - 1) {
+			cout << ",";
+		}
+	}
+	cout << "] and A = " << A << endl;
+	
+	// Clearing output array for next algorithm
+	resetArray(VSize, outputArray);
+
+	// Brute Force Algorithm
+    cout << "**************************************" << endl;
+    cout << "       Brute Force  Algorithm" << endl;
+	cout << "**************************************" << endl;
+	m = changeslow(VSize, V, outputArray, A);
+    cout << "C: [";
+    for (int i = 0; i < VSize; ++i){
+        cout << outputArray[i];
+    }
+    cout << "]" << endl;
+    cout << "m = " << m << endl;
+
+	// Clearing output array for next algorithm
+	resetArray(VSize, outputArray);
+	// Clearing m for next algorithm
+	m = -1;
+
+	// Greedy Algorithm
+    cout << "**************************************" << endl;
+    cout << "           Greedy Algorithm" << endl;
+	cout << "**************************************" << endl;
+	m = changegreedy(VSize, V, outputArray, A);
+    cout << "C: [";
+    for (int i = 0; i < VSize; ++i){
+        cout << outputArray[i];
+    }
+    cout << "]" << endl;
+    cout << "m = " << m << endl;
+	
+	// Clearing output array for next algorithm
+	resetArray(VSize, outputArray);
+	// Clearing m for next algorithm
+	m = -1;
+
+	// Dynamic Programming
+    cout << "**************************************" << endl;
+    cout << "    Dynamic Programming Algorithm" << endl;
+	cout << "**************************************" << endl;
+	m = changedp(VSize, V, outputArray, A);
+	cout << "C: [";
+	for (int i = 0; i < VSize; i ++) {
+		cout << outputArray[i];
+	}
+	cout << "]" << endl;
+	cout << "m = " << m << endl;
+	fclose(inputFile);
+	fclose(outputFile);
+	return 0;
+}
